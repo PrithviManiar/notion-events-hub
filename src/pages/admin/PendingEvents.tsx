@@ -3,10 +3,17 @@ import DashboardLayout from '@/components/layout/DashboardLayout';
 import EventCard from '@/components/events/EventCard';
 import { usePendingEvents, useUpdateEventStatus } from '@/services/eventService';
 import { Card } from '@/components/ui/card';
+import { useEffect } from 'react';
 
 const PendingEvents = () => {
-  const { data: events = [], isLoading } = usePendingEvents();
+  const { data: events = [], isLoading, refetch } = usePendingEvents();
   const { mutate: updateEventStatus } = useUpdateEventStatus();
+
+  // Add an effect to refetch on component mount to ensure we have the latest data
+  useEffect(() => {
+    refetch();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleApprove = (eventId: string) => {
     updateEventStatus({ eventId, status: 'approved' });

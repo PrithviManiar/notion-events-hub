@@ -5,11 +5,18 @@ import { useApprovedEvents, usePendingEvents } from '@/services/eventService';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { CheckCircle, Clock, Users } from 'lucide-react';
+import { useEffect } from 'react';
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
-  const { data: pendingEvents = [], isLoading: isPendingLoading } = usePendingEvents();
+  const { data: pendingEvents = [], isLoading: isPendingLoading, refetch: refetchPending } = usePendingEvents();
   const { data: approvedEvents = [], isLoading: isApprovedLoading } = useApprovedEvents();
+
+  // Add an effect to refetch pending events on component mount
+  useEffect(() => {
+    refetchPending();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Count users (for demo, we'll show a placeholder)
   // In a real app, you would fetch this from Supabase

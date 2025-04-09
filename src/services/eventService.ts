@@ -55,15 +55,23 @@ export const usePendingEvents = () => {
     queryFn: async () => {
       if (!supabase) throw new Error('Supabase client not initialized');
       
+      // Make sure we're getting all pending events regardless of who created them
       const { data, error } = await supabase
         .from('events')
         .select('*')
         .eq('status', 'pending')
         .order('datetime', { ascending: true });
         
-      if (error) throw error;
+      if (error) {
+        console.error("Error fetching pending events:", error);
+        throw error;
+      }
+      
+      console.log("Pending events fetched:", data);
       return data as Event[];
-    }
+    },
+    refetchOnMount: true,
+    refetchOnWindowFocus: true
   });
 };
 
@@ -141,6 +149,8 @@ export const useCreateEvent = () => {
         status: 'pending' as const
       };
       
+      console.log("Creating new event:", newEvent);
+      
       const { data, error } = await supabase
         .from('events')
         .insert(newEvent)
@@ -155,6 +165,7 @@ export const useCreateEvent = () => {
       queryClient.invalidateQueries({ queryKey: ['pendingEvents'] });
     },
     onError: (error) => {
+      console.error("Error creating event:", error);
       toast.error('Failed to create event', {
         description: error.message
       });
