@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Session, User } from '@supabase/supabase-js';
 import { useSupabase } from './SupabaseContext';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 
 // Types
 type AuthContextType = {
@@ -30,7 +31,7 @@ export const useAuth = () => useContext(AuthContext);
 
 // Provider component
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const { supabase, isLoading: isSupabaseLoading } = useSupabase();
+  const { isLoading: isSupabaseLoading } = useSupabase();
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -38,23 +39,25 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   // Initialize auth state
   useEffect(() => {
-    if (!supabase || isSupabaseLoading) return;
+    if (isSupabaseLoading) return;
 
     // Set up session listener
     const getInitialSession = async () => {
       try {
         setIsLoading(true);
-        const { data: { session: initialSession } } = await supabase.auth.getSession();
-        setSession(initialSession);
-        setUser(initialSession?.user ?? null);
-
-        // Set up auth state listener
-        const { data: { subscription } } = await supabase.auth.onAuthStateChange(
+        
+        // First set up the auth state listener
+        const { data: { subscription } } = supabase.auth.onAuthStateChange(
           (_event, newSession) => {
             setSession(newSession);
             setUser(newSession?.user ?? null);
           }
         );
+
+        // Then check for existing session
+        const { data: { session: initialSession } } = await supabase.auth.getSession();
+        setSession(initialSession);
+        setUser(initialSession?.user ?? null);
 
         return () => {
           subscription.unsubscribe();
@@ -67,15 +70,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     };
 
     getInitialSession();
-  }, [supabase, isSupabaseLoading]);
+  }, [isSupabaseLoading]);
 
   // Sign up function
   const signUp = async (email: string, password: string) => {
-    if (!supabase) {
-      toast.error("Supabase client not initialized");
-      return;
-    }
-
     try {
       const { error } = await supabase.auth.signUp({
         email,
@@ -92,11 +90,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   // Sign in function
   const signIn = async (email: string, password: string) => {
-    if (!supabase) {
-      toast.error("Supabase client not initialized");
-      return;
-    }
-
     try {
       const { error, data } = await supabase.auth.signInWithPassword({
         email,
@@ -121,11 +114,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   // Sign out function
   const signOut = async () => {
-    if (!supabase) {
-      toast.error("Supabase client not initialized");
-      return;
-    }
-
     try {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
