@@ -1,4 +1,3 @@
-
 import { useSupabase } from '@/contexts/SupabaseContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
@@ -49,29 +48,38 @@ export const useApprovedEvents = () => {
 // Hook to get pending events (admin only)
 export const usePendingEvents = () => {
   const { supabase } = useSupabase();
+  const { user } = useAuth();
   
   return useQuery({
     queryKey: ['pendingEvents'],
     queryFn: async () => {
       if (!supabase) throw new Error('Supabase client not initialized');
+      if (!user) throw new Error('User not authenticated');
       
-      // Make sure we're getting all pending events regardless of who created them
-      const { data, error } = await supabase
-        .from('events')
-        .select('*')
-        .eq('status', 'pending')
-        .order('datetime', { ascending: true });
+      console.log(`Fetching pending events as user ${user.email} (${user.id})`);
+      
+      try {
+        const { data, error } = await supabase
+          .from('events')
+          .select('*')
+          .eq('status', 'pending')
+          .order('datetime', { ascending: true });
+          
+        if (error) {
+          console.error("Error fetching pending events:", error);
+          throw error;
+        }
         
-      if (error) {
-        console.error("Error fetching pending events:", error);
-        throw error;
+        console.log(`Successfully fetched ${data?.length || 0} pending events:`, data);
+        return data as Event[];
+      } catch (e) {
+        console.error("Exception in usePendingEvents:", e);
+        throw e;
       }
-      
-      console.log("Pending events fetched:", data);
-      return data as Event[];
     },
     refetchOnMount: true,
-    refetchOnWindowFocus: true
+    refetchOnWindowFocus: true,
+    refetchInterval: 30000 // Refresh every 30 seconds
   });
 };
 
