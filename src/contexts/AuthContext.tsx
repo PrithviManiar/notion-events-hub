@@ -98,8 +98,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       if (error) throw error;
 
-      // Admin check and redirect
-      if (email === "meowmeow@meow.com") {
+      // Admin check and redirect - updated email address
+      if (email === "prithvimaniar25@gmail.com") {
         navigate('/admin/dashboard');
       } else {
         navigate('/user/dashboard');

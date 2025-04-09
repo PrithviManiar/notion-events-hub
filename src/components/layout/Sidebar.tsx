@@ -19,7 +19,7 @@ type SidebarProps = {
 
 export const Sidebar = ({ className }: SidebarProps) => {
   const { user, signOut } = useAuth();
-  const isAdmin = user?.email === 'meowmeow@meow.com';
+  const isAdmin = user?.email === 'prithvimaniar25@gmail.com';
 
   return (
     <div className={cn(

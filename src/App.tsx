@@ -36,7 +36,7 @@ const ProtectedRoute = ({
     return <Navigate to={redirectPath} replace />;
   }
 
-  if (requireAdmin && user.email !== "meowmeow@meow.com") {
+  if (requireAdmin && user.email !== "prithvimaniar25@gmail.com") {
     return <Navigate to="/user/dashboard" replace />;
   }
 

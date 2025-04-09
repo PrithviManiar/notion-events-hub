@@ -18,8 +18,8 @@ const LoginPage = () => {
 
   // If user is already logged in, redirect accordingly
   if (user) {
-    // Check if admin or regular user
-    if (user.email === 'meowmeow@meow.com') {
+    // Check if admin or regular user - updated email address
+    if (user.email === 'prithvimaniar25@gmail.com') {
       return <Navigate to="/admin/dashboard" replace />;
     } else {
       return <Navigate to="/user/dashboard" replace />;
@@ -121,7 +121,7 @@ const LoginPage = () => {
                 </Button>
 
                 <div className="text-center text-sm mt-4 text-gray-500">
-                  <p>Admin access: meowmeow@meow.com / meowmeow</p>
+                  <p>Admin access: prithvimaniar25@gmail.com / prithvi@25</p>
                 </div>
               </form>
             </TabsContent>

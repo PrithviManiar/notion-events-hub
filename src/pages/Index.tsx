@@ -11,8 +11,8 @@ const Index = () => {
     if (isLoading) return;
     
     if (user) {
-      // Check if admin
-      if (user.email === 'meowmeow@meow.com') {
+      // Check if admin - updated email address
+      if (user.email === 'prithvimaniar25@gmail.com') {
         navigate('/admin/dashboard');
       } else {
         navigate('/user/dashboard');
