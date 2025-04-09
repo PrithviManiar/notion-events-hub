@@ -16,6 +16,7 @@ import AdminDashboard from "./pages/admin/AdminDashboard";
 import PendingEvents from "./pages/admin/PendingEvents";
 import AllEvents from "./pages/admin/AllEvents";
 import NotFound from "./pages/NotFound";
+import Index from "./pages/Index";
 
 const queryClient = new QueryClient();
 
@@ -45,12 +46,15 @@ const ProtectedRoute = ({
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <SupabaseProvider>
-      <AuthProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <AuthProvider>
             <Routes>
+              {/* Root route with Index component */}
+              <Route path="/" element={<Index />} />
+              
               {/* Public routes */}
               <Route path="/login" element={<LoginPage />} />
               
@@ -88,15 +92,12 @@ const App = () => (
                 </ProtectedRoute>
               } />
               
-              {/* Redirect root to login */}
-              <Route path="/" element={<Navigate to="/login" replace />} />
-              
               {/* 404 route */}
               <Route path="*" element={<NotFound />} />
             </Routes>
-          </BrowserRouter>
-        </TooltipProvider>
-      </AuthProvider>
+          </AuthProvider>
+        </BrowserRouter>
+      </TooltipProvider>
     </SupabaseProvider>
   </QueryClientProvider>
 );
