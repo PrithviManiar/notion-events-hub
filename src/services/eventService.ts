@@ -304,7 +304,7 @@ export const useUserJoinedEvents = () => {
   });
 };
 
-// NEW: Hook to get the count of unique users who have joined any event
+// Hook to get the count of unique users who have joined any event
 export const useUniqueParticipantsCount = () => {
   const { supabase } = useSupabase();
   
@@ -316,18 +316,27 @@ export const useUniqueParticipantsCount = () => {
       console.log("Fetching unique participants count...");
       
       try {
-        // Use a simpler approach: just get the distinct count directly from the database
-        const { data, error, count } = await supabase
+        // First get all participants
+        const { data, error } = await supabase
           .from('event_participants')
-          .select('user_id', { count: 'exact', distinct: true });
+          .select('user_id');
           
         if (error) {
-          console.error("Error fetching unique participants count:", error);
+          console.error("Error fetching participants:", error);
           throw error;
         }
         
-        console.log(`Found ${count} unique participants`);
-        return count || 0;
+        // Count unique user IDs using a Set
+        const uniqueUserIds = new Set();
+        if (data) {
+          data.forEach(participant => {
+            uniqueUserIds.add(participant.user_id);
+          });
+        }
+        
+        const uniqueCount = uniqueUserIds.size;
+        console.log(`Found ${uniqueCount} unique participants`);
+        return uniqueCount;
       } catch (e) {
         console.error("Exception in useUniqueParticipantsCount:", e);
         throw e;
