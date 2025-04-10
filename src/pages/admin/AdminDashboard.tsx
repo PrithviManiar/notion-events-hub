@@ -13,7 +13,7 @@ const AdminDashboard = () => {
   const { user } = useAuth();
   const { data: pendingEvents = [], isLoading: isPendingLoading, refetch: refetchPending, error: pendingError } = usePendingEvents();
   const { data: approvedEvents = [], isLoading: isApprovedLoading } = useApprovedEvents();
-  const { data: participantsCount = 0, isLoading: isParticipantsLoading } = useUniqueParticipantsCount();
+  const { data: participantsCount = 0, isLoading: isParticipantsLoading, error: participantsError } = useUniqueParticipantsCount();
 
   // Add an effect to refetch pending events on component mount
   useEffect(() => {
@@ -29,6 +29,15 @@ const AdminDashboard = () => {
   if (pendingError) {
     console.error("Error loading pending events:", pendingError);
   }
+  
+  if (participantsError) {
+    console.error("Error loading participants count:", participantsError);
+  }
+  
+  // Debug participants count
+  useEffect(() => {
+    console.log("Current participants count:", participantsCount);
+  }, [participantsCount]);
 
   return (
     <DashboardLayout>
@@ -116,6 +125,9 @@ const AdminDashboard = () => {
                   {isParticipantsLoading ? "..." : participantsCount}
                 </p>
                 <p className="text-sm text-gray-500">Total participants</p>
+                {participantsError && (
+                  <p className="text-xs text-red-500 mt-1">Error: {participantsError.message}</p>
+                )}
               </div>
             </CardContent>
           </Card>

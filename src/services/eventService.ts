@@ -313,37 +313,25 @@ export const useUniqueParticipantsCount = () => {
     queryFn: async () => {
       if (!supabase) throw new Error('Supabase client not initialized');
       
-      // Get count of unique users who have joined events
-      const { data, error, count } = await supabase
-        .from('event_participants')
-        .select('user_id', { count: 'exact', head: true })
-        .limit(0);
+      console.log("Fetching unique participants count...");
+      
+      try {
+        // Use a simpler approach: just get the distinct count directly from the database
+        const { data, error, count } = await supabase
+          .from('event_participants')
+          .select('user_id', { count: 'exact', distinct: true });
+          
+        if (error) {
+          console.error("Error fetching unique participants count:", error);
+          throw error;
+        }
         
-      if (error) {
-        console.error("Error fetching unique participants count:", error);
-        throw error;
+        console.log(`Found ${count} unique participants`);
+        return count || 0;
+      } catch (e) {
+        console.error("Exception in useUniqueParticipantsCount:", e);
+        throw e;
       }
-      
-      // Get count of unique users
-      const { data: uniqueUsers, error: uniqueError } = await supabase
-        .from('event_participants')
-        .select('user_id')
-        .limit(1000); // For safety, limit to 1000 records
-        
-      if (uniqueError) {
-        console.error("Error fetching unique users:", uniqueError);
-        throw uniqueError;
-      }
-      
-      // Count unique user IDs using a Set
-      const uniqueUserIds = new Set();
-      if (uniqueUsers) {
-        uniqueUsers.forEach(participant => {
-          uniqueUserIds.add(participant.user_id);
-        });
-      }
-      
-      return uniqueUserIds.size;
     },
     refetchOnMount: true,
     refetchOnWindowFocus: true,
