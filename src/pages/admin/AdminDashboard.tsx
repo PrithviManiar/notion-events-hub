@@ -1,6 +1,7 @@
+
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { useApprovedEvents, usePendingEvents } from '@/services/eventService';
+import { useApprovedEvents, usePendingEvents, useUniqueParticipantsCount } from '@/services/eventService';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { CheckCircle, Clock, Users } from 'lucide-react';
@@ -12,6 +13,7 @@ const AdminDashboard = () => {
   const { user } = useAuth();
   const { data: pendingEvents = [], isLoading: isPendingLoading, refetch: refetchPending, error: pendingError } = usePendingEvents();
   const { data: approvedEvents = [], isLoading: isApprovedLoading } = useApprovedEvents();
+  const { data: participantsCount = 0, isLoading: isParticipantsLoading } = useUniqueParticipantsCount();
 
   // Add an effect to refetch pending events on component mount
   useEffect(() => {
@@ -22,10 +24,6 @@ const AdminDashboard = () => {
 
   // Admin check (for debugging)
   const isAdmin = user?.email === 'prithvimaniar25@gmail.com';
-
-  // Count users (for demo, we'll show a placeholder)
-  // In a real app, you would fetch this from Supabase
-  const userCount = "N/A";
 
   // Log any errors for debugging
   if (pendingError) {
@@ -114,8 +112,10 @@ const AdminDashboard = () => {
             </CardHeader>
             <CardContent>
               <div className="text-center py-4">
-                <p className="text-3xl font-bold text-blue-500">{userCount}</p>
-                <p className="text-sm text-gray-500">Total users</p>
+                <p className="text-3xl font-bold text-blue-500">
+                  {isParticipantsLoading ? "..." : participantsCount}
+                </p>
+                <p className="text-sm text-gray-500">Total participants</p>
               </div>
             </CardContent>
           </Card>
@@ -129,7 +129,7 @@ const AdminDashboard = () => {
             <ul className="space-y-2">
               <li>Approve or reject events from the Pending Events page</li>
               <li>View participants for each event on the All Events page</li>
-              <li>User analytics will be available in a future update</li>
+              <li>The Registered Users count shows unique users who have joined events</li>
             </ul>
           </CardContent>
         </Card>

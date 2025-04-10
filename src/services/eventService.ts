@@ -303,3 +303,50 @@ export const useUserJoinedEvents = () => {
     }
   });
 };
+
+// NEW: Hook to get the count of unique users who have joined any event
+export const useUniqueParticipantsCount = () => {
+  const { supabase } = useSupabase();
+  
+  return useQuery({
+    queryKey: ['uniqueParticipantsCount'],
+    queryFn: async () => {
+      if (!supabase) throw new Error('Supabase client not initialized');
+      
+      // Get count of unique users who have joined events
+      const { data, error, count } = await supabase
+        .from('event_participants')
+        .select('user_id', { count: 'exact', head: true })
+        .limit(0);
+        
+      if (error) {
+        console.error("Error fetching unique participants count:", error);
+        throw error;
+      }
+      
+      // Get count of unique users
+      const { data: uniqueUsers, error: uniqueError } = await supabase
+        .from('event_participants')
+        .select('user_id')
+        .limit(1000); // For safety, limit to 1000 records
+        
+      if (uniqueError) {
+        console.error("Error fetching unique users:", uniqueError);
+        throw uniqueError;
+      }
+      
+      // Count unique user IDs using a Set
+      const uniqueUserIds = new Set();
+      if (uniqueUsers) {
+        uniqueUsers.forEach(participant => {
+          uniqueUserIds.add(participant.user_id);
+        });
+      }
+      
+      return uniqueUserIds.size;
+    },
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
+    refetchInterval: 30000 // Refresh every 30 seconds
+  });
+};

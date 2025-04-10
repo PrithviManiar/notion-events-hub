@@ -3,6 +3,7 @@ import DashboardLayout from '@/components/layout/DashboardLayout';
 import EventCard from '@/components/events/EventCard';
 import { useEventsWithParticipants } from '@/services/eventService';
 import { Card } from '@/components/ui/card';
+import { Loader2 } from 'lucide-react';
 
 const AllEvents = () => {
   const { data: events = [], isLoading } = useEventsWithParticipants();
@@ -17,6 +18,7 @@ const AllEvents = () => {
 
         {isLoading ? (
           <div className="text-center py-12">
+            <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-primary" />
             <p>Loading events...</p>
           </div>
         ) : events.length === 0 ? (
